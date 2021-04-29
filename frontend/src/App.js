@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
+import { Button } from "antd";
+
 function App() {
   const [text, setText] = useState("");
   useEffect(() => {
@@ -21,7 +23,7 @@ function App() {
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
-        <p>{text}</p>
+        <Button>{text}</Button>
         <a
           className="App-link"
           href="https://reactjs.org"
