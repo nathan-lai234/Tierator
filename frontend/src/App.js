@@ -6,9 +6,10 @@ function App() {
   const [text, setText] = useState("");
   useEffect(() => {
     async function fetchDummyData() {
-      const res = await fetch("http://localhost:5000/testAPI");
-      const text = await res.text();
-      setText(text);
+      const res = await fetch("http://localhost:5000/dummy/1");
+      const json = await res.json();
+      console.log(json);
+      setText("s");
     }
     fetchDummyData();
   }, []);

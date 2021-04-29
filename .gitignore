@@ -30,10 +30,13 @@ node_modules/
 
 # ExpressJS (backend)
 
+/backend/dev
+
+
 # Logs
-/backendend/logs
-/backendend/*.log
-/backendend/npm-debug.log*
-/backendend/yarn-debug.log*
-/backendend/yarn-error.log*
-/backendend/lerna-debug.log*
+/backend/logs
+/backend/*.log
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+/backend/lerna-debug.log*
