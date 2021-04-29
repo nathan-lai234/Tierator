@@ -1,0 +1,39 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+node_modules/
+
+
+# React JS (backend)
+
+# dependencies
+/frontend/.pnp
+/frontend/.pnp.js
+/frontend/client
+
+# testing
+/frontend/coverage
+
+# production
+/frontend/build
+
+# misc
+/frontend/.DS_Store
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+
+
+# ExpressJS (backend)
+
+# Logs
+/backendend/logs
+/backendend/*.log
+/backendend/npm-debug.log*
+/backendend/yarn-debug.log*
+/backendend/yarn-error.log*
+/backendend/lerna-debug.log*
