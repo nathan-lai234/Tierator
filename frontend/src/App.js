@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import "antd/dist/antd.css";
+
+import LoginPage from "./routes/LoginPage";
+import RegisterPage from "./routes/auth/RegisterPage";
 
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
@@ -22,7 +26,10 @@ function App() {
     <Router>
       <Switch>
         <Route path="/login">
-          <div>login</div>
+          <LoginPage />
+        </Route>
+        <Route path="/register">
+          <RegisterPage />
         </Route>
         <Route>
           <div className="App">
