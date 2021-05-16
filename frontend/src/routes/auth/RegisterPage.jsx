@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 
-// import "../../styles/routes/LoginPage.scss";
+import "../../styles/routes/RegisterPage.scss";
 
 // Ant Design
-import { Layout, Menu, Form, Button, Input } from "antd";
+import { Button, Input, Layout, Menu, Typography } from "antd";
 const { Header, Content, Footer } = Layout;
+const { Text, Title } = Typography;
+
+import { Controller, useForm } from "react-hook-form";
+import { whitespaceRule } from "../../helpers/inputValidation";
 
 export function RegisterPage() {
   const [headerState, setHeaderState] = useState("1");
@@ -13,30 +17,23 @@ export function RegisterPage() {
     setHeaderState(event.key);
   };
 
-  const [form] = Form.useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    getValues,
+  } = useForm();
 
-  const layout = {
-    labelCol: { offset: 4, span: 4 },
-    wrapperCol: { span: 8 },
-  };
+  const [apiErrors, setApiErrors] = useState(new Map());
 
-  const tailLayout = {
-    wrapperCol: { offset: 8, span: 8 },
-  };
+  const onSubmit = async (values) => {
+    setApiErrors((apiErrors) => ({ ...apiErrors, username: "", email: "" }));
 
-  const validatePassword = (rule, value, callback) => {
-    if (value.length < 8) {
-      callback("Password must be at least 8 or more characters");
-    } else {
-      callback();
-    }
-  };
-
-  const onFinish = async (values) => {
     const payload = {
-      username: values.registerUsername,
-      email: values.registerEmail,
-      password: values.registerPassword,
+      username: values.username.trim().toLowerCase(),
+      email: values.email.trim().toLowerCase(),
+      password: values.password,
     };
 
     const options = {
@@ -47,20 +44,26 @@ export function RegisterPage() {
       },
       body: JSON.stringify(payload),
     };
+
+    // Post new account
     const res = await fetch("http://localhost:5000/auth/signup", options);
     const status = res.status;
-    const json = await res.json();
+    const registerRes = await res.json();
 
+    // IF username or email is already taken
     if (status === 409) {
-      console.log(json);
-      form.setFields({
-        registerUsername: {
-          value: values.username,
-          errors: ["asd"],
-        },
-      });
-
-      console.log(form.getFieldsError());
+      const property = registerRes.property;
+      if (property === "username") {
+        setApiErrors((apiErrors) => ({
+          ...apiErrors,
+          username: registerRes.error,
+        }));
+      } else if (property === "email") {
+        setApiErrors((apiErrors) => ({
+          ...apiErrors,
+          email: registerRes.error,
+        }));
+      }
     }
   };
 
@@ -76,83 +79,138 @@ export function RegisterPage() {
         </Menu>
       </Header>
       <Content>
-        <Form
-          {...layout}
-          form={form}
+        <form
           name="registerForm"
-          onFinish={onFinish}
-          // onFinishFailed={onFinishFailed}
+          onSubmit={handleSubmit(onSubmit)}
+          className="registerForm"
         >
-          <Form.Item
-            label="Username"
-            name="registerUsername"
-            rules={[
-              {
+          <Title>Register</Title>
+          <div className="formItem">
+            <label htmlFor="username" className="formLabel">
+              Username
+            </label>
+            <Controller
+              control={control}
+              name="username"
+              {...register("username", {
                 required: true,
-                whitespace: true,
-                message: "Please input a username!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Email"
-            name="registerEmail"
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: "Please input an email!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Password"
-            name="registerPassword"
-            rules={[
-              { required: true, message: "Please input a password!" },
-              { validator: validatePassword },
-            ]}
-            validateTrigger={null}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            label="Confirm Password"
-            name="registerConfirmPassword"
-            rules={[
-              { required: true, message: "Please confirm your password!" },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("registerPassword") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error(
-                      "The two passwords that you entered do not match!"
-                    )
-                  );
+                validate: {
+                  whitespace: (v) => whitespaceRule(v),
                 },
-              }),
-            ]}
-            validateTrigger={null}
-          >
-            <Input.Password />
-          </Form.Item>
+              })}
+              render={({ field }) => {
+                return (
+                  <Input
+                    className="formInput"
+                    {...field}
+                    placeholder="Input username"
+                  />
+                );
+              }}
+            />
+            <Text type="danger" className="formError">
+              {errors.username?.type === "required" && "Username is required"}
+              {errors.username?.type === "whitespace" &&
+                "Username must not be only spaces"}
+              {apiErrors.username}
+            </Text>
+          </div>
 
-          <Form.Item {...tailLayout}>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-        <Button></Button>
+          <div className="formItem">
+            <label htmlFor="email" className="formLabel">
+              Email
+            </label>
+            <Controller
+              control={control}
+              name="email"
+              {...register("email", {
+                required: true,
+                validate: {
+                  whitespace: (v) => whitespaceRule(v),
+                },
+              })}
+              render={({ field }) => {
+                return (
+                  <Input
+                    className="formInput"
+                    {...field}
+                    placeholder="Input username"
+                  />
+                );
+              }}
+            />
+            <Text type="danger" className="formError">
+              {errors.email?.type === "required" && "Email is required"}
+              {errors.password?.type === "whitespace" &&
+                "Email must not be only spaces"}
+              {apiErrors.email}
+            </Text>
+          </div>
+
+          <div className="formItem">
+            <label htmlFor="password" className="formLabel">
+              Password
+            </label>
+            <Controller
+              control={control}
+              name="password"
+              {...register("password", {
+                required: true,
+                minLength: 8,
+              })}
+              render={({ field }) => {
+                return (
+                  <Input.Password
+                    className="formInput"
+                    {...field}
+                    placeholder="Input password"
+                  />
+                );
+              }}
+            />
+            <Text type="danger" className="formError">
+              {errors.password?.type === "required" && "Password is required"}
+              {errors.password?.type === "minLength" &&
+                "Password must be 8 or more characters"}
+            </Text>
+          </div>
+
+          <div className="formItem">
+            <label htmlFor="confirmPassword" className="formLabel">
+              Confirm Password
+            </label>
+            <Controller
+              control={control}
+              name="confirmPassword"
+              {...register("confirmPassword", {
+                required: true,
+                validate: {
+                  samePassword: () =>
+                    getValues("password") === getValues("confirmPassword"),
+                },
+              })}
+              render={({ field }) => {
+                return (
+                  <Input.Password
+                    className="formInput"
+                    {...field}
+                    placeholder="Confirm password"
+                  />
+                );
+              }}
+            />
+            <Text type="danger" className="formError">
+              {errors.confirmPassword?.type === "required" &&
+                "Confirm Password is required"}
+              {errors.confirmPassword?.type === "samePassword" &&
+                "Both passwords must match"}
+            </Text>
+          </div>
+
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </form>
       </Content>
       <Footer>ASD</Footer>
     </Layout>

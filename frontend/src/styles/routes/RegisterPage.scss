@@ -1,0 +1,24 @@
+.formItem {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+}
+
+.formLabel {
+  font-size: 1.5em;
+  margin-bottom: 5px;
+}
+
+.formInput {
+  width: 100%;
+}
+
+.formError {
+  height: 1.5em;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
