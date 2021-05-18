@@ -18,6 +18,9 @@ export function LoginPage() {
     control,
   } = useForm();
 
+  const sleep = (milliseconds = 500) =>
+    new Promise((resolve) => setTimeout(resolve, milliseconds));
+
   const onSubmit = async (values) => {
     const payload = {
       username: values.username.trim().toLowerCase(),
@@ -34,7 +37,16 @@ export function LoginPage() {
     };
 
     const res = await fetch("http://localhost:5000/auth/login", options);
-    console.log(res.status);
+    console.log(res);
+
+    if (res.status === 200) {
+      await sleep();
+      const accountDetails = await fetch(
+        "http://localhost:5000/user/account/details"
+      );
+      const details = await accountDetails.json();
+      console.log(details);
+    }
   };
 
   return (

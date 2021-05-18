@@ -4,13 +4,18 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
+var session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 
+// Get dev values
+const pool = require("./dev/databaseDetails");
+const secret = require("./dev/session");
+
+var app = express();
+// Routes
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var dummyQuery = require("./routes/dummyQuery");
-
-var app = express();
-
 var authRouter = require("./routes/auth");
 
 // view engine setup
@@ -31,6 +36,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  session({
+    store: new pgSession({
+      pool: pool,
+      tableName: "session",
+    }),
+    name: "tierartorAuthSession",
+    secret: secret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7, aameSite: true, secure: false },
+  })
+);
 
 app.use(authRouter);
 

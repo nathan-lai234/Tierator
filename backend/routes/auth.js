@@ -83,10 +83,11 @@ app.post("/auth/signup", async function (req, res, next) {
   }
 });
 
-app.post("/auth/login", async function (req, res, next) {
+app.post("/auth/login", async function (req, res) {
   const username = req.body.username;
   const password = req.body.password;
 
+  // Get user from the account table
   pool.query(
     "SELECT * FROM account WHERE username = $1",
     [username],
@@ -94,23 +95,52 @@ app.post("/auth/login", async function (req, res, next) {
       if (error) {
         throw error;
       }
+      // If empty send a error
       if (results.rows.length === 0) {
         res.status(403).json({ error: "Password or Username is incorrect" });
         return;
       }
       const hash = results.rows[0].hash;
-      console.log({ password, hash });
       bcrypt.compare(password, hash, function (err, result) {
-        if (err) next(err);
+        if (err) throw err;
 
         if (result) {
-          res.status(200).json({ messsage: "Succes" });
+          console.log(req.sessionID);
+          res.status(200).json({ message: "Successful Login" });
         } else {
           res.status(403).json({ error: "Password or Username is incorrect" });
         }
       });
     }
   );
+});
+
+app.get("/user/account/details", (req, res) => {
+  console.log(req.sessionID);
+  // console.log(req.sessionID);
+  pool.query(
+    "SELECT * FROM account WHERE username = $1",
+    [req.session.username],
+    (error, results) => {
+      if (error) throw error;
+      if (results.rows.length === 0) {
+        res.status(403).json({ error: "User session expired" });
+        return;
+      }
+
+      res.status(200).json(results.rows[0]);
+    }
+  );
+});
+
+app.get("/testSession", (req, res) => {
+  res.json(req.sessionID);
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    throw err;
+  });
 });
 
 // const authHandler = (request, response) => {
