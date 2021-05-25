@@ -2,8 +2,6 @@ var express = require("express");
 var router = express.Router();
 var app = (module.exports = express());
 
-var dummyQuery = require("./dummyQuery");
-
 // Database
 const pool = require("../dev/databaseDetails");
 
@@ -14,11 +12,66 @@ const saltRounds = 10;
 // Passport Strategies
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const JwtStrategy = require("passport-jwt").Strategy;
-const ExtractJWT = require("passport-jwt").ExtractJwt;
-const { response } = require("../app");
 
 app.use(passport.initialize());
+app.use(passport.session());
+
+// Local strategy for authenticating
+passport.use(
+  new LocalStrategy((username, password, done) => {
+    pool.query(
+      "SELECT * FROM account WHERE username = $1",
+      [username],
+      (error, results) => {
+        if (error) {
+          done(error);
+        }
+        // If empty send a error
+        if (results.rows.length === 0) {
+          return done(null, false, {
+            message: "Username or password is invalid",
+          });
+        }
+        console.log(password);
+        const user = results.rows[0];
+        const hash = results.rows[0].hash;
+        bcrypt.compare(password, hash, function (error, result) {
+          if (error) {
+            done(error);
+          }
+
+          if (result) {
+            return done(null, user);
+          } else {
+            return done(null, false, {
+              message: "Username or password is invalid",
+            });
+          }
+        });
+      }
+    );
+  })
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  pool.query("SELECT * FROM account WHERE id = $1", [id], (error, results) => {
+    if (error) {
+      done(error, false);
+    }
+    // If empty send a error
+    if (results.rows.length === 0) {
+      return done(null, false);
+    }
+
+    const user = results.rows[0];
+    console.log(user);
+    return done(null, user);
+  });
+});
 
 /**
  * Check if there exist a single row with the given column or value
@@ -66,7 +119,7 @@ app.post("/auth/signup", async function (req, res, next) {
       .json({ property: "email", error: `Email ${email} is already taken.` });
   } else {
     bcrypt.hash(password, saltRounds, function (err, hash) {
-      if (err) next(err);
+      if (err) return next(err);
 
       pool.query(
         "INSERT INTO account (username, email, hash) VALUES ($1, $2, $3)",
@@ -83,54 +136,57 @@ app.post("/auth/signup", async function (req, res, next) {
   }
 });
 
-app.post("/auth/login", async function (req, res) {
-  const username = req.body.username;
-  const password = req.body.password;
+app.get("/login", (req, res) => {
+  res.send(`You got the login page!\n`);
+});
 
-  // Get user from the account table
-  pool.query(
-    "SELECT * FROM account WHERE username = $1",
-    [username],
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      // If empty send a error
-      if (results.rows.length === 0) {
-        res.status(403).json({ error: "Password or Username is incorrect" });
-        return;
-      }
-      const hash = results.rows[0].hash;
-      bcrypt.compare(password, hash, function (err, result) {
-        if (err) throw err;
-
-        if (result) {
-          console.log(req.sessionID);
-          res.status(200).json({ message: "Successful Login" });
-        } else {
-          res.status(403).json({ error: "Password or Username is incorrect" });
-        }
-      });
+app.post("/auth/login", function (req, res, next) {
+  passport.authenticate("local", (err, user, info) => {
+    if (info) {
+      return res.status(403).json(info);
     }
-  );
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.redirect("/login");
+    }
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      console.log(user);
+      console.log(req.session.passport);
+
+      return res.status(200).json({ message: "success" });
+    });
+  })(req, res, next);
 });
 
 app.get("/user/account/details", (req, res) => {
-  console.log(req.sessionID);
-  // console.log(req.sessionID);
-  pool.query(
-    "SELECT * FROM account WHERE username = $1",
-    [req.session.username],
-    (error, results) => {
-      if (error) throw error;
-      if (results.rows.length === 0) {
-        res.status(403).json({ error: "User session expired" });
-        return;
-      }
+  if (req.isAuthenticated()) {
+    console.log("authenticated");
+    // console.log(req.sessionID)
+    console.log(req.session);
+    console.log(req.session.passport);
+    console.log(req.session.passport.user);
+    const userId = req.session.passport.user;
+    pool.query(
+      "SELECT * FROM account WHERE id = $1",
+      [userId],
+      (error, results) => {
+        if (error) throw error;
+        if (results.rows.length === 0) {
+          res.status(403).json({ error: "User session expired" });
+          return;
+        }
 
-      res.status(200).json(results.rows[0]);
-    }
-  );
+        res.status(200).json(results.rows[0]);
+      }
+    );
+  } else {
+    console.log("nooo");
+  }
 });
 
 app.get("/testSession", (req, res) => {
@@ -142,7 +198,3 @@ app.get("/logout", (req, res) => {
     throw err;
   });
 });
-
-// const authHandler = (request, response) => {
-//   passport.use(new LocalStrategy(function (username, password, done) {}));
-// };

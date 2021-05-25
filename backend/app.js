@@ -1,41 +1,51 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
-var cors = require("cors");
-var session = require("express-session");
+// Default requires
+const createError = require("http-errors");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const cors = require("cors");
+const session = require("express-session");
+
+// auth requires
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
 const pgSession = require("connect-pg-simple")(session);
 
 // Get dev values
 const pool = require("./dev/databaseDetails");
 const secret = require("./dev/session");
 
-var app = express();
+const app = express();
 // Routes
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var dummyQuery = require("./routes/dummyQuery");
-var authRouter = require("./routes/auth");
+const indexRouter = require("./routes/index");
+const usersRouter = require("./routes/users");
+const dummyQuery = require("./routes/dummyQuery");
+const authQuery = require("./routes/auth");
+const auth = require("./routes/auth");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+  })
+);
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser("hello"));
 app.use(express.static(path.join(__dirname, "public")));
+
 app.use(
   session({
     store: new pgSession({
@@ -45,15 +55,14 @@ app.use(
     name: "tierartorAuthSession",
     secret: secret,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 * 24 * 7, aameSite: true, secure: false },
   })
 );
 
-app.use(authRouter);
-
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use(authQuery);
 
 // dummy
 app.get("/dummy", dummyQuery.getUsers);

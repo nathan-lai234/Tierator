@@ -34,6 +34,7 @@ export function LoginPage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
+      credentials: "include",
     };
 
     const res = await fetch("http://localhost:5000/auth/login", options);
@@ -42,7 +43,8 @@ export function LoginPage() {
     if (res.status === 200) {
       await sleep();
       const accountDetails = await fetch(
-        "http://localhost:5000/user/account/details"
+        "http://localhost:5000/user/account/details",
+        { credentials: "include" }
       );
       const details = await accountDetails.json();
       console.log(details);
