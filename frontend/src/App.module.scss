@@ -1,0 +1,59 @@
+@import "./index.scss";
+
+.topHeader {
+  @include flex-center(space-between);
+}
+
+.profileWrapper {
+  width: 150px;
+  @include flex-center(flex-start);
+}
+
+.profileName {
+  color: white;
+  margin: 0px 0px 0px 10px;
+}
+
+.appLogo {
+  height: 60px;
+  width: 60px;
+  cursor: pointer;
+  // pointer-events: all;
+}
+
+.appContent {
+  min-height: 85vh;
+  display: flex;
+}
+
+.App {
+  text-align: center;
+  background-color: #282c34;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  width: 100%;
+}
+
+.authButtons {
+  @include flex-center(space-around);
+  width: 20%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,22 +1,15 @@
 import React, { useState } from "react";
 
-import "../../styles/routes/RegisterPage.scss";
+import styles from "../../styles/routes/authForm.module.scss";
 
 // Ant Design
-import { Button, Input, Layout, Menu, Typography } from "antd";
-const { Header, Content, Footer } = Layout;
+import { Button, Input, Typography } from "antd";
 const { Text, Title } = Typography;
 
 import { Controller, useForm } from "react-hook-form";
 import { whitespaceRule } from "../../helpers/inputValidation";
 
 export function RegisterPage() {
-  const [headerState, setHeaderState] = useState("1");
-
-  const handleHeaderClick = (event) => {
-    setHeaderState(event.key);
-  };
-
   const {
     register,
     handleSubmit,
@@ -28,8 +21,12 @@ export function RegisterPage() {
   const [apiErrors, setApiErrors] = useState(new Map());
 
   const onSubmit = async (values) => {
+    // Reset api errors
     setApiErrors((apiErrors) => ({ ...apiErrors, username: "", email: "" }));
 
+    // Trim username and email of any extra spaces or tabs
+
+    // TODO: password sanity
     const payload = {
       username: values.username.trim().toLowerCase(),
       email: values.email.trim().toLowerCase(),
@@ -68,152 +65,138 @@ export function RegisterPage() {
   };
 
   return (
-    <Layout>
-      <Header className="header">
-        <Menu
-          mode="horizontal"
-          onClick={handleHeaderClick}
-          selectedKeys={[headerState]}
-        >
-          <Menu.Item key="mail">Navigation One</Menu.Item>
-        </Menu>
-      </Header>
-      <Content>
-        <form
-          name="registerForm"
-          onSubmit={handleSubmit(onSubmit)}
-          className="registerForm"
-        >
-          <Title>Register</Title>
-          <div className="formItem">
-            <label htmlFor="username" className="formLabel">
-              Username
-            </label>
-            <Controller
-              control={control}
-              name="username"
-              {...register("username", {
-                required: true,
-                validate: {
-                  whitespace: (v) => whitespaceRule(v),
-                },
-              })}
-              render={({ field }) => {
-                return (
-                  <Input
-                    className="formInput"
-                    {...field}
-                    placeholder="Input username"
-                  />
-                );
-              }}
-            />
-            <Text type="danger" className="formError">
-              {errors.username?.type === "required" && "Username is required"}
-              {errors.username?.type === "whitespace" &&
-                "Username must not be only spaces"}
-              {apiErrors.username}
-            </Text>
-          </div>
+    <form
+      name="registerForm"
+      onSubmit={handleSubmit(onSubmit)}
+      className={styles.authForm}
+    >
+      <Title>Register</Title>
+      <div className={styles.formItem}>
+        <label htmlFor="username" className={styles.formLabel}>
+          Username
+        </label>
+        <Controller
+          control={control}
+          name="username"
+          {...register("username", {
+            required: true,
+            validate: {
+              whitespace: (v) => whitespaceRule(v),
+            },
+          })}
+          render={({ field }) => {
+            return (
+              <Input
+                className={styles.formInput}
+                {...field}
+                placeholder="Input username"
+              />
+            );
+          }}
+        />
+        <Text type="danger" className={styles.formError}>
+          {errors.username?.type === "required" && "Username is required"}
+          {errors.username?.type === "whitespace" &&
+            "Username must not be only spaces"}
+          {apiErrors.username}
+        </Text>
+      </div>
 
-          <div className="formItem">
-            <label htmlFor="email" className="formLabel">
-              Email
-            </label>
-            <Controller
-              control={control}
-              name="email"
-              {...register("email", {
-                required: true,
-                validate: {
-                  whitespace: (v) => whitespaceRule(v),
-                },
-              })}
-              render={({ field }) => {
-                return (
-                  <Input
-                    className="formInput"
-                    {...field}
-                    placeholder="Input username"
-                  />
-                );
-              }}
-            />
-            <Text type="danger" className="formError">
-              {errors.email?.type === "required" && "Email is required"}
-              {errors.password?.type === "whitespace" &&
-                "Email must not be only spaces"}
-              {apiErrors.email}
-            </Text>
-          </div>
+      <div className={styles.formItem}>
+        <label htmlFor="email" className={styles.formLabel}>
+          Email
+        </label>
+        <Controller
+          control={control}
+          name="email"
+          {...register("email", {
+            required: true,
+            validate: {
+              whitespace: (v) => whitespaceRule(v),
+            },
+          })}
+          render={({ field }) => {
+            return (
+              <Input
+                className={styles.formInput}
+                {...field}
+                placeholder="Input username"
+              />
+            );
+          }}
+        />
+        <Text type="danger" className={styles.formError}>
+          {errors.email?.type === "required" && "Email is required"}
+          {errors.password?.type === "whitespace" &&
+            "Email must not be only spaces"}
+          {apiErrors.email}
+        </Text>
+      </div>
 
-          <div className="formItem">
-            <label htmlFor="password" className="formLabel">
-              Password
-            </label>
-            <Controller
-              control={control}
-              name="password"
-              {...register("password", {
-                required: true,
-                minLength: 8,
-              })}
-              render={({ field }) => {
-                return (
-                  <Input.Password
-                    className="formInput"
-                    {...field}
-                    placeholder="Input password"
-                  />
-                );
-              }}
-            />
-            <Text type="danger" className="formError">
-              {errors.password?.type === "required" && "Password is required"}
-              {errors.password?.type === "minLength" &&
-                "Password must be 8 or more characters"}
-            </Text>
-          </div>
+      <div className={styles.formItem}>
+        <label htmlFor="password" className={styles.formLabel}>
+          Password
+        </label>
+        <Controller
+          control={control}
+          name="password"
+          {...register("password", {
+            required: true,
+            minLength: 8,
+          })}
+          render={({ field }) => {
+            return (
+              <Input.Password
+                className={styles.formInput}
+                {...field}
+                placeholder="Input password"
+              />
+            );
+          }}
+        />
+        <Text type="danger" className={styles.formError}>
+          {errors.password?.type === "required" && "Password is required"}
+          {errors.password?.type === "minLength" &&
+            "Password must be 8 or more characters"}
+        </Text>
+      </div>
 
-          <div className="formItem">
-            <label htmlFor="confirmPassword" className="formLabel">
-              Confirm Password
-            </label>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              {...register("confirmPassword", {
-                required: true,
-                validate: {
-                  samePassword: () =>
-                    getValues("password") === getValues("confirmPassword"),
-                },
-              })}
-              render={({ field }) => {
-                return (
-                  <Input.Password
-                    className="formInput"
-                    {...field}
-                    placeholder="Confirm password"
-                  />
-                );
-              }}
-            />
-            <Text type="danger" className="formError">
-              {errors.confirmPassword?.type === "required" &&
-                "Confirm Password is required"}
-              {errors.confirmPassword?.type === "samePassword" &&
-                "Both passwords must match"}
-            </Text>
-          </div>
+      <div className={styles.formItem}>
+        <label htmlFor="confirmPassword" className={styles.formLabel}>
+          Confirm Password
+        </label>
+        <Controller
+          control={control}
+          name="confirmPassword"
+          {...register("confirmPassword", {
+            required: true,
+            validate: {
+              samePassword: () =>
+                getValues("password") === getValues("confirmPassword"),
+            },
+          })}
+          render={({ field }) => {
+            return (
+              <Input.Password
+                className={styles.formInput}
+                {...field}
+                placeholder="Confirm password"
+              />
+            );
+          }}
+        />
+        <Text type="danger" className={styles.formError}>
+          {errors.confirmPassword?.type === "required" &&
+            "Confirm Password is required"}
+          {errors.confirmPassword?.type === "samePassword" &&
+            "Both passwords must match"}
+        </Text>
+      </div>
 
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </form>
-      </Content>
-      <Footer>ASD</Footer>
-    </Layout>
+      <Button type="primary" htmlType="submit">
+        Submit
+      </Button>
+    </form>
   );
 }
 

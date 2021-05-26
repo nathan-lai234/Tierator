@@ -54,10 +54,11 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, { id: user.id, username: user.username });
 });
 
-passport.deserializeUser((id, done) => {
+passport.deserializeUser((user, done) => {
+  const id = user.id;
   pool.query("SELECT * FROM account WHERE id = $1", [id], (error, results) => {
     if (error) {
       done(error, false);
@@ -170,7 +171,7 @@ app.get("/user/account/details", (req, res) => {
     console.log(req.session);
     console.log(req.session.passport);
     console.log(req.session.passport.user);
-    const userId = req.session.passport.user;
+    const userId = req.session.passport.user.id;
     pool.query(
       "SELECT * FROM account WHERE id = $1",
       [userId],
