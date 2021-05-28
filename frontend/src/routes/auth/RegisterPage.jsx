@@ -9,6 +9,10 @@ const { Text, Title } = Typography;
 import { Controller, useForm } from "react-hook-form";
 import { whitespaceRule } from "../../helpers/inputValidation";
 
+import API from "../../api/api";
+
+const api = new API();
+
 export function RegisterPage() {
   const {
     register,
@@ -33,22 +37,11 @@ export function RegisterPage() {
       password: values.password,
     };
 
-    const options = {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    };
-
     // Post new account
-    const res = await fetch("http://localhost:5000/auth/signup", options);
-    const status = res.status;
-    const registerRes = await res.json();
+    const registerRes = await api.signup(payload);
 
     // IF username or email is already taken
-    if (status === 409) {
+    if (registerRes.statusCode === 409) {
       const property = registerRes.property;
       if (property === "username") {
         setApiErrors((apiErrors) => ({

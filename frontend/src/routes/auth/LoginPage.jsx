@@ -25,10 +25,9 @@ export function LoginPage() {
   const dispatch = useDispatch();
 
   // On submit of login form handler
-  // Trim usernamespaces and tabs TODO: some warning about spaces and tabs being trimmed
+  // Trim username spaces and tabs
   const onSubmit = async (values) => {
     const username = values.username.trim().toLowerCase();
-    // TODO: password strength validation
     const payload = {
       username: username,
       password: values.password,

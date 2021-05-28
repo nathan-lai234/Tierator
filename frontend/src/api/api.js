@@ -48,6 +48,18 @@ export default class API {
     return getJSON(`${this.url}/auth/logout`, options);
   }
 
+  signup(payload) {
+    const options = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    };
+    return getJSON(`${this.url}/auth/signup`, options);
+  }
+
   // Get the account details of the given username
   // Currently returns the username, email and hash (TODO: HASH SHOULD NOT BE RETURNED)
   getAccountDetails(username) {
