@@ -1,0 +1,26 @@
+@import "../../index.scss";
+
+.profileWrapper {
+  width: 150px;
+  @include flex-center(flex-start);
+}
+
+.profileName {
+  color: white;
+  margin: 0px 0px 0px 10px;
+}
+
+.appLogo {
+  height: 60px;
+  width: 60px;
+  cursor: pointer;
+  // pointer-events: all;
+}
+
+.profileDropdown {
+  cursor: pointer;
+}
+
+.profileDropdown:hover {
+  text-decoration: underline;
+}

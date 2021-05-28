@@ -1,49 +1,44 @@
-import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
-import "./App.css";
+// Global Ant design css
+import "antd/dist/antd.css";
 
+// Route Pages
+import LoginPage from "./routes/auth/LoginPage";
+import RegisterPage from "./routes/auth/RegisterPage";
+import SplashPage from "./routes/SplashPage";
+
+// Components
+import PageHeader from "./components/PageHeader/PageHeader";
+
+// React Router
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import { Button } from "antd";
+import React from "react";
+import styles from "./App.module.scss";
+import { Layout } from "antd";
+const { Header, Content, Footer } = Layout;
 
 function App() {
-  const [text, setText] = useState("");
-  useEffect(() => {
-    async function fetchDummyData() {
-      const res = await fetch("http://localhost:5000/dummy/1");
-      const json = await res.json();
-      console.log(json);
-      setText("s");
-    }
-    fetchDummyData();
-  }, []);
-
   return (
     <Router>
-      <Switch>
-        <Route path="/login">
-          <div>login</div>
-        </Route>
-        <Route>
-          <div className="App">
-            <header className="App-header">
-              <img src={logo} className="App-logo" alt="logo" />
-              <p>
-                Edit <code>src/App.js</code> and save to reload.
-              </p>
-              <Button>{text}</Button>
-              <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Learn React
-              </a>
-            </header>
-          </div>
-        </Route>
-      </Switch>
+      <Layout style={{ minHeight: "100vh" }}>
+        <Header className={styles.topHeader}>
+          <PageHeader />
+        </Header>
+        <Content className={styles.appContent}>
+          <Switch>
+            <Route path="/login">
+              <LoginPage />
+            </Route>
+            <Route path="/register">
+              <RegisterPage />
+            </Route>
+            <Route>
+              <SplashPage />
+            </Route>
+          </Switch>
+        </Content>
+        <Footer>Footer</Footer>
+      </Layout>
     </Router>
   );
 }
