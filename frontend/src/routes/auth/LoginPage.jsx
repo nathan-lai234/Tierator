@@ -1,5 +1,8 @@
 import React from "react";
 
+import { useDispatch } from "react-redux";
+import { logIn } from "../../features/user/userSlice";
+
 import styles from "../../styles/routes/authForm.module.scss";
 import { whitespaceRule } from "../../helpers/inputValidation";
 
@@ -19,6 +22,8 @@ export function LoginPage() {
 
   const sleep = (milliseconds = 500) =>
     new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+  const dispatch = useDispatch();
 
   const onSubmit = async (values) => {
     const payload = {
@@ -47,6 +52,8 @@ export function LoginPage() {
       );
       const details = await accountDetails.json();
       console.log(details);
+
+      dispatch(logIn(details.username));
     }
   };
 

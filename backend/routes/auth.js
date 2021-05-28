@@ -166,11 +166,6 @@ app.post("/auth/login", function (req, res, next) {
 
 app.get("/user/account/details", (req, res) => {
   if (req.isAuthenticated()) {
-    console.log("authenticated");
-    // console.log(req.sessionID)
-    console.log(req.session);
-    console.log(req.session.passport);
-    console.log(req.session.passport.user);
     const userId = req.session.passport.user.id;
     pool.query(
       "SELECT * FROM account WHERE id = $1",
@@ -190,12 +185,18 @@ app.get("/user/account/details", (req, res) => {
   }
 });
 
+app.get("/isAuthenticated", (req, res) => {
+  const isAuthenticated = req.isAuthenticated();
+  res.status(200).json({ isAuthenticated: isAuthenticated });
+});
+
 app.get("/testSession", (req, res) => {
   res.json(req.sessionID);
 });
 
-app.get("/logout", (req, res) => {
+app.get("/auth/logout", (req, res) => {
   req.session.destroy((err) => {
-    throw err;
+    if (err) next(err);
+    res.redirect("/");
   });
 });

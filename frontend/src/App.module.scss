@@ -4,29 +4,12 @@
   @include flex-center(space-between);
 }
 
-.profileWrapper {
-  width: 150px;
-  @include flex-center(flex-start);
-}
-
-.profileName {
-  color: white;
-  margin: 0px 0px 0px 10px;
-}
-
-.appLogo {
-  height: 60px;
-  width: 60px;
-  cursor: pointer;
-  // pointer-events: all;
-}
-
 .appContent {
   min-height: 85vh;
   display: flex;
 }
 
-.App {
+.homeWrapper {
   text-align: center;
   background-color: #282c34;
   display: flex;
