@@ -17,6 +17,8 @@ import { DownOutlined, UserOutlined } from "@ant-design/icons";
 
 // The main style of header found on top of each page
 // PageHeader is utilised in App.js in the <Layout/Header> Tag
+const api = new API();
+
 const PageHeader = () => {
   const username = useSelector(selectUsername);
   const [profileUsername, setProfileUsername] = useState(username || "");
@@ -27,7 +29,6 @@ const PageHeader = () => {
     setAuthentication();
   }, [username]);
 
-  const api = new API();
   const dispatch = useDispatch();
 
   // Set authenticiation value to determine if the user is logged in or not

@@ -3,6 +3,8 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { logIn } from "../../features/user/userSlice";
 
+import API from "../../api/api";
+
 import styles from "../../styles/routes/authForm.module.scss";
 import { whitespaceRule } from "../../helpers/inputValidation";
 
@@ -12,6 +14,7 @@ const { Text, Title } = Typography;
 
 import { Controller, useForm } from "react-hook-form";
 
+const api = new API();
 export function LoginPage() {
   const {
     register,
@@ -19,41 +22,23 @@ export function LoginPage() {
     formState: { errors },
     control,
   } = useForm();
-
-  const sleep = (milliseconds = 500) =>
-    new Promise((resolve) => setTimeout(resolve, milliseconds));
-
   const dispatch = useDispatch();
 
+  // On submit of login form handler
+  // Trim usernamespaces and tabs TODO: some warning about spaces and tabs being trimmed
   const onSubmit = async (values) => {
+    const username = values.username.trim().toLowerCase();
+    // TODO: password strength validation
     const payload = {
-      username: values.username.trim().toLowerCase(),
+      username: username,
       password: values.password,
     };
 
-    const options = {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      credentials: "include",
-    };
-
-    const res = await fetch("http://localhost:5000/auth/login", options);
-    console.log(res);
-
-    if (res.status === 200) {
-      await sleep();
-      const accountDetails = await fetch(
-        "http://localhost:5000/user/account/details",
-        { credentials: "include" }
-      );
-      const details = await accountDetails.json();
-      console.log(details);
-
-      dispatch(logIn(details.username));
+    const loginRes = await api.login(payload);
+    if (loginRes.statusCode === 200) {
+      const accountDetails = await api.getAccountDetails(username);
+      // Set redux user values
+      dispatch(logIn(accountDetails.username));
     }
   };
 
@@ -64,6 +49,9 @@ export function LoginPage() {
       className={styles.authForm}
     >
       <Title>Login</Title>
+
+      {/* Username input 
+      Uses a Controller tag so I can use antDesign inputs*/}
       <div className={styles.formItem}>
         <label htmlFor="username" className={styles.formLabel}>
           Username
@@ -94,6 +82,7 @@ export function LoginPage() {
         </Text>
       </div>
 
+      {/* Password input */}
       <div className={styles.formItem}>
         <label htmlFor="password" className={styles.formLabel}>
           Password

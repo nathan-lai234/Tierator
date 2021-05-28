@@ -156,20 +156,27 @@ app.post("/auth/login", function (req, res, next) {
       if (err) {
         return next(err);
       }
-      console.log(user);
-      console.log(req.session.passport);
+      // console.log(user);
+      // console.log(req.session.passport);
 
       return res.status(200).json({ message: "success" });
     });
   })(req, res, next);
 });
 
-app.get("/user/account/details", (req, res) => {
+app.get("/user/account/details/:username", (req, res) => {
   if (req.isAuthenticated()) {
-    const userId = req.session.passport.user.id;
+    let username = req.params.username;
+    console.log({ username });
+    if (username === "" || username === undefined || username === null) {
+      username = req.session.passport.user.username;
+    }
+
+    console.log({ username });
+
     pool.query(
-      "SELECT * FROM account WHERE id = $1",
-      [userId],
+      "SELECT * FROM account WHERE username = $1",
+      [username],
       (error, results) => {
         if (error) throw error;
         if (results.rows.length === 0) {

@@ -4,6 +4,8 @@ import "./index.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
+// Redux and redux persist
+// Currently used to store user data, persist is used so data is retained after refresh
 import { Provider } from "react-redux";
 import { persistStore } from "redux-persist";
 import store from "./store/store";
