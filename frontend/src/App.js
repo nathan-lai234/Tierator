@@ -1,15 +1,20 @@
-import React from "react";
-import styles from "./App.module.scss";
+// Global Ant design css
 import "antd/dist/antd.css";
 
+// Route Pages
 import LoginPage from "./routes/auth/LoginPage";
 import RegisterPage from "./routes/auth/RegisterPage";
+import SplashPage from "./routes/SplashPage";
+
+// Components
 import AuthHeader from "./components/header/AuthHeader";
 
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+// React Router
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import { Button, Layout } from "antd";
-
+import React from "react";
+import styles from "./App.module.scss";
+import { Layout } from "antd";
 const { Header, Content, Footer } = Layout;
 
 function App() {
@@ -28,16 +33,7 @@ function App() {
               <RegisterPage />
             </Route>
             <Route>
-              <div className={styles.homeWrapper}>
-                <div className={styles.authButtons}>
-                  <Button size="large">
-                    <Link to="/login">Login</Link>
-                  </Button>
-                  <Button size="large" type="primary">
-                    <Link to="/register">Register</Link>
-                  </Button>
-                </div>
-              </div>
+              <SplashPage />
             </Route>
           </Switch>
         </Content>
