@@ -101,6 +101,7 @@ app.post("/auth/signup", async function (req, res, next) {
   const email = req.body.email;
   const password = req.body.password;
 
+  // is * Unique will is not true the username or email is not unique
   let isUsernameUnique = await isPropertyUnique(
     "account",
     "username",
@@ -137,10 +138,7 @@ app.post("/auth/signup", async function (req, res, next) {
   }
 });
 
-app.get("/login", (req, res) => {
-  res.send(`You got the login page!\n`);
-});
-
+// Login using passport
 app.post("/auth/login", function (req, res, next) {
   passport.authenticate("local", (err, user, info) => {
     if (info) {
@@ -156,23 +154,21 @@ app.post("/auth/login", function (req, res, next) {
       if (err) {
         return next(err);
       }
-      // console.log(user);
-      // console.log(req.session.passport);
 
       return res.status(200).json({ message: "success" });
     });
   })(req, res, next);
 });
 
+// Get the details of the account given the username parameter
 app.get("/user/account/details/:username", (req, res) => {
   if (req.isAuthenticated()) {
     let username = req.params.username;
-    console.log({ username });
+
+    // If somehow username is malformed to these values just return the current user
     if (username === "" || username === undefined || username === null) {
       username = req.session.passport.user.username;
     }
-
-    console.log({ username });
 
     pool.query(
       "SELECT * FROM account WHERE username = $1",
@@ -183,24 +179,21 @@ app.get("/user/account/details/:username", (req, res) => {
           res.status(403).json({ error: "User session expired" });
           return;
         }
-
         res.status(200).json(results.rows[0]);
       }
     );
   } else {
-    console.log("nooo");
+    res.status(401).json({ error: "User session expired" });
   }
 });
 
+// Simple functiojn to check if the user is authenticated. Mostly used for UI displaying.
 app.get("/isAuthenticated", (req, res) => {
   const isAuthenticated = req.isAuthenticated();
   res.status(200).json({ isAuthenticated: isAuthenticated });
 });
 
-app.get("/testSession", (req, res) => {
-  res.json(req.sessionID);
-});
-
+// Destroy the current section simulating a logout
 app.get("/auth/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) next(err);

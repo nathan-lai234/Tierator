@@ -29,7 +29,6 @@ export function RegisterPage() {
     setApiErrors((apiErrors) => ({ ...apiErrors, username: "", email: "" }));
 
     // Trim username and email of any extra spaces or tabs
-
     // TODO: password sanity
     const payload = {
       username: values.username.trim().toLowerCase(),
