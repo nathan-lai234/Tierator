@@ -11,10 +11,23 @@
 }
 
 .appLogo {
+  margin: 2px;
   height: 60px;
   width: 60px;
   cursor: pointer;
   // pointer-events: all;
+}
+
+.appLogo:hover {
+  outline: 1px dotted grey;
+}
+
+.appLogo:focus {
+  outline: 1px dotted grey;
+}
+
+.appLogo:target {
+  outline: 1px dotted grey;
 }
 
 .profileDropdown {

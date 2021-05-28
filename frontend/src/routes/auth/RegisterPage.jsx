@@ -11,6 +11,9 @@ import { whitespaceRule } from "../../helpers/inputValidation";
 
 import API from "../../api/api";
 
+import { useDispatch } from "react-redux";
+import { logIn } from "../../features/user/userSlice";
+
 const api = new API();
 
 export function RegisterPage() {
@@ -21,6 +24,7 @@ export function RegisterPage() {
     control,
     getValues,
   } = useForm();
+  const dispatch = useDispatch();
 
   const [apiErrors, setApiErrors] = useState(new Map());
 
@@ -53,6 +57,8 @@ export function RegisterPage() {
           email: registerRes.error,
         }));
       }
+    } else {
+      dispatch(logIn(registerRes.username));
     }
   };
 

@@ -5,6 +5,7 @@ import "antd/dist/antd.css";
 import LoginPage from "./routes/auth/LoginPage";
 import RegisterPage from "./routes/auth/RegisterPage";
 import SplashPage from "./routes/SplashPage";
+import ProfilePage from "./routes/user/ProfilePage";
 
 // Components
 import PageHeader from "./components/PageHeader/PageHeader";
@@ -31,6 +32,9 @@ function App() {
             </Route>
             <Route path="/register">
               <RegisterPage />
+            </Route>
+            <Route path="/profile/:username">
+              <ProfilePage />
             </Route>
             <Route>
               <SplashPage />

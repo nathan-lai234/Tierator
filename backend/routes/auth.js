@@ -92,7 +92,7 @@ const isPropertyUnique = async (table, column, value) => {
     return !rows[0].exists;
   } catch (error) {
     console.log(error);
-    throw error;
+    next(error);
   }
 };
 
@@ -123,15 +123,34 @@ app.post("/auth/signup", async function (req, res, next) {
     bcrypt.hash(password, saltRounds, function (err, hash) {
       if (err) return next(err);
 
+      // Create account
       pool.query(
         "INSERT INTO account (username, email, hash) VALUES ($1, $2, $3)",
         [username, email, hash],
         (error, results) => {
           if (error) {
-            throw error;
+            next(error);
           }
-          console.log(results);
-          res.status(200).json({ message: "successful creation" });
+
+          // select account
+          pool.query(
+            "SELECT * FROM account WHERE username = $1",
+            [username],
+            (error, results) => {
+              if (error) next(error);
+
+              //Create profile
+              pool.query(
+                "INSERT INTO profile (account_id) VALUES ($1)",
+                [results.rows[0].id],
+                (error, results) => {
+                  if (error) next(error);
+
+                  res.status(200).json({ username: username });
+                }
+              );
+            }
+          );
         }
       );
     });
@@ -174,7 +193,7 @@ app.get("/user/account/details/:username", (req, res) => {
       "SELECT * FROM account WHERE username = $1",
       [username],
       (error, results) => {
-        if (error) throw error;
+        if (error) next(error);
         if (results.rows.length === 0) {
           res.status(403).json({ error: "User session expired" });
           return;
@@ -190,6 +209,7 @@ app.get("/user/account/details/:username", (req, res) => {
 // Simple functiojn to check if the user is authenticated. Mostly used for UI displaying.
 app.get("/isAuthenticated", (req, res) => {
   const isAuthenticated = req.isAuthenticated();
+  console.log(req.session.passport);
   res.status(200).json({ isAuthenticated: isAuthenticated });
 });
 

@@ -22,7 +22,7 @@ const api = new API();
 const PageHeader = () => {
   const username = useSelector(selectUsername);
   const [profileUsername, setProfileUsername] = useState(username || "");
-  const [isAuthenticated, setIsAuthenticated] = useState();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(async () => {
     setProfileUsername(username);
@@ -30,22 +30,26 @@ const PageHeader = () => {
   }, [username]);
 
   const dispatch = useDispatch();
-
+  console.log(isAuthenticated);
   // Set authenticiation value to determine if the user is logged in or not
   const setAuthentication = async () => {
     const res = await api.isAuthenticated();
+    console.log(res);
     setIsAuthenticated(res.isAuthenticated);
   };
 
   // Logout account, set user redux value to empty
   const logout = async () => {
-    await api.logout;
+    await api.logout();
     dispatch(logOut());
   };
 
   // Drop down profile menu
   const menu = (
     <Menu>
+      <Menu.Item>
+        <Link to={`/profile/${username}`}>Profile</Link>
+      </Menu.Item>
       <Menu.Item>
         <a onClick={logout}>Logout</a>
       </Menu.Item>
