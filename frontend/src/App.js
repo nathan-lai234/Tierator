@@ -7,7 +7,7 @@ import RegisterPage from "./routes/auth/RegisterPage";
 import SplashPage from "./routes/SplashPage";
 
 // Components
-import AuthHeader from "./components/header/AuthHeader";
+import PageHeader from "./components/PageHeader/PageHeader";
 
 // React Router
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
@@ -22,7 +22,7 @@ function App() {
     <Router>
       <Layout style={{ minHeight: "100vh" }}>
         <Header className={styles.topHeader}>
-          <AuthHeader />
+          <PageHeader />
         </Header>
         <Content className={styles.appContent}>
           <Switch>

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 
+import API from "../../api/api";
+
 import logo from "../../logo.svg";
-import styles from "../../styles/components/authHeader.module.scss";
+import styles from "./PageHeader.module.scss";
 
 import { useSelector } from "react-redux";
 import { selectUsername } from "../../features/user/userSlice";
@@ -13,7 +15,9 @@ import { Link } from "react-router-dom";
 import { Avatar, Menu, Dropdown } from "antd";
 import { DownOutlined, UserOutlined } from "@ant-design/icons";
 
-const AuthHeader = () => {
+// The main style of header found on top of each page
+// PageHeader is utilised in App.js in the <Layout/Header> Tag
+const PageHeader = () => {
   const username = useSelector(selectUsername);
   const [profileUsername, setProfileUsername] = useState(username || "");
   const [isAuthenticated, setIsAuthenticated] = useState();
@@ -23,24 +27,22 @@ const AuthHeader = () => {
     setAuthentication();
   }, [username]);
 
+  const api = new API();
   const dispatch = useDispatch();
 
   // Set authenticiation value to determine if the user is logged in or not
   const setAuthentication = async () => {
-    const res = await fetch("http://localhost:5000/isAuthenticated", {
-      credentials: "include",
-    });
-    const json = await res.json();
-    setIsAuthenticated(json.isAuthenticated);
+    const res = await api.isAuthenticated();
+    setIsAuthenticated(res.isAuthenticated);
   };
 
+  // Logout account, set user redux value to empty
   const logout = async () => {
-    await fetch("http://localhost:5000/auth/logout", {
-      credentials: "include",
-    });
+    await api.logout;
     dispatch(logOut());
   };
 
+  // Drop down profile menu
   const menu = (
     <Menu>
       <Menu.Item>
@@ -55,6 +57,7 @@ const AuthHeader = () => {
         <img src={logo} className={styles.appLogo} alt="logo" />
       </Link>
       <div className={styles.profileWrapper}>
+        {/* If user is not authenticated do not show profile section */}
         {isAuthenticated && (
           <>
             <Avatar icon={<UserOutlined />}></Avatar>
@@ -75,4 +78,4 @@ const AuthHeader = () => {
   );
 };
 
-export default AuthHeader;
+export default PageHeader;
