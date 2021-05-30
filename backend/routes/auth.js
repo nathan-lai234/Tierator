@@ -1,5 +1,4 @@
 var express = require("express");
-var router = express.Router();
 var app = (module.exports = express());
 
 // Database
@@ -32,7 +31,6 @@ passport.use(
             message: "Username or password is invalid",
           });
         }
-        console.log(password);
         const user = results.rows[0];
         const hash = results.rows[0].hash;
         bcrypt.compare(password, hash, function (error, result) {

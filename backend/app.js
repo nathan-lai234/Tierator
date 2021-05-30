@@ -7,11 +7,7 @@ const logger = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 
-// auth requires
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
-const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
+//
 const pgSession = require("connect-pg-simple")(session);
 
 // Get dev values
@@ -22,9 +18,8 @@ const app = express();
 // Routes
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-const dummyQuery = require("./routes/dummyQuery");
 const authQuery = require("./routes/auth");
-const auth = require("./routes/auth");
+const profileQuery = require("./routes/profile");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -65,8 +60,9 @@ app.use("/users", usersRouter);
 app.use(authQuery);
 
 // dummy
-app.get("/dummy", dummyQuery.getUsers);
-app.get("/dummy/:id", dummyQuery.getUserById);
+// app.get("/dummy", dummyQuery.getUsers);
+app.get("/user/profile/:id", profileQuery.getUserById);
+app.get("/user/profile/username/:username", profileQuery.getUserByUsername);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
