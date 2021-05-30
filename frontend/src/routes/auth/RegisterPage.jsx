@@ -11,8 +11,7 @@ import { whitespaceRule } from "../../helpers/inputValidation";
 
 import API from "../../api/api";
 
-import { useDispatch } from "react-redux";
-import { logIn } from "../../features/user/userSlice";
+import { useHistory } from "react-router-dom";
 
 const api = new API();
 
@@ -24,7 +23,7 @@ export function RegisterPage() {
     control,
     getValues,
   } = useForm();
-  const dispatch = useDispatch();
+  const history = useHistory();
 
   const [apiErrors, setApiErrors] = useState(new Map());
 
@@ -58,7 +57,7 @@ export function RegisterPage() {
         }));
       }
     } else {
-      dispatch(logIn(registerRes.username));
+      history.push("/login");
     }
   };
 

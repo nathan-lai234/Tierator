@@ -20,6 +20,7 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const authQuery = require("./routes/auth");
 const profileQuery = require("./routes/profile");
+const tierlistQuery = require("./routes/tierlist");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -63,6 +64,11 @@ app.use(authQuery);
 // app.get("/dummy", dummyQuery.getUsers);
 app.get("/user/profile/:id", profileQuery.getUserById);
 app.get("/user/profile/username/:username", profileQuery.getUserByUsername);
+
+app.post("/tierlist", tierlistQuery.createTierList);
+app.get("/tierlist/:id", tierlistQuery.readTierlist);
+app.put("/tierlist", tierlistQuery.updateTierlist);
+app.delete("/tierlist", tierlistQuery.deleteTierlist);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

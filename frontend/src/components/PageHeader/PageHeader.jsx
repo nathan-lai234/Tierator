@@ -26,6 +26,7 @@ const PageHeader = () => {
 
   useEffect(async () => {
     setProfileUsername(username);
+    console.log({ username });
     setAuthentication();
   }, [username]);
 
@@ -34,7 +35,7 @@ const PageHeader = () => {
   // Set authenticiation value to determine if the user is logged in or not
   const setAuthentication = async () => {
     const res = await api.isAuthenticated();
-    console.log(res);
+    console.log({ res });
     setIsAuthenticated(res.isAuthenticated);
   };
 

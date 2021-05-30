@@ -35,9 +35,9 @@ export function LoginPage() {
 
     const loginRes = await api.login(payload);
     if (loginRes.statusCode === 200) {
-      const accountDetails = await api.getAccountDetails(username);
+      // const accountDetails = await api.getAccountDetails(username);
       // Set redux user values
-      dispatch(logIn(accountDetails.username));
+      dispatch(logIn(username));
     }
   };
 

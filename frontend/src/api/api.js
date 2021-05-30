@@ -69,4 +69,20 @@ export default class API {
     };
     return getJSON(`${this.url}/user/account/details/${username}`, options);
   }
+
+  getProfileId(id) {
+    const options = {
+      method: "GET",
+      credentials: "include",
+    };
+    return getJSON(`${this.url}/user/profile/${id}`, options);
+  }
+
+  getProfileUsername(username) {
+    const options = {
+      method: "GET",
+      credentials: "include",
+    };
+    return getJSON(`${this.url}/user/profile/username/${username}`, options);
+  }
 }
