@@ -65,6 +65,7 @@ app.use(authQuery);
 app.get("/user/profile/:id", profileQuery.getUserById);
 app.get("/user/profile/username/:username", profileQuery.getUserByUsername);
 
+app.get("/tierlists/:accountId", tierlistQuery.getTierlists);
 app.post("/tierlist", tierlistQuery.createTierList);
 app.get("/tierlist/:id", tierlistQuery.readTierlist);
 app.put("/tierlist", tierlistQuery.updateTierlist);

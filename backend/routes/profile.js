@@ -4,7 +4,7 @@ const pool = require("../dev/databaseDetails");
 
 // The current attributes that construct a users profile (ADD A LEADING SPACE AT THE BEGINNING AND END!)
 // Its scuff i know
-const profileAttributes = " username, email, description, profile_image ";
+const profileAttributes = " id, username, email, description, profile_image ";
 
 // Get user profile details
 const getUserById = (req, res, next) => {
@@ -20,7 +20,7 @@ const getUserById = (req, res, next) => {
       if (results.rows.length === 0) {
         res.status(404).json({ error: "user does not exist" });
       } else {
-        res.status(200).json(results.rows[0]);
+        res.status(200).json({ profile: results.rows[0] });
       }
     }
   );
@@ -39,7 +39,7 @@ const getUserByUsername = (req, res, next) => {
       if (results.rows.length === 0) {
         res.status(404).json({ error: "user does not exist" });
       } else {
-        res.status(200).json(results.rows[0]);
+        res.status(200).json({ profile: results.rows[0] });
       }
     }
   );

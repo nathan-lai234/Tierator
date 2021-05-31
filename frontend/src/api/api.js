@@ -85,4 +85,25 @@ export default class API {
     };
     return getJSON(`${this.url}/user/profile/username/${username}`, options);
   }
+
+  getTierlists(accountId) {
+    const options = {
+      method: "GET",
+      credentials: "include",
+    };
+    return getJSON(`${this.url}/tierlists/${accountId}`, options);
+  }
+
+  createTierlist(payload) {
+    const options = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    };
+    return getJSON(`${this.url}/tierlist`, options);
+  }
 }

@@ -18,12 +18,13 @@ const isOwnerOfTierlist = (accountId, tierlistId, next) => {
 // Create a tier list with the current user id and a given title
 // Note: no description is given as it will not be set during the first creation of a tierlist
 const createTierList = (req, res, next) => {
+  console.log(req.session);
   if (!req.isAuthenticated()) {
     res.status(403).json({ error: "user session has expired" });
-    return;
+    return next();
   }
 
-  const id = req.session.id;
+  const id = req.session.passport.user.id;
   const title = req.body.title;
 
   pool.query(
@@ -31,13 +32,29 @@ const createTierList = (req, res, next) => {
     [id, title],
     (error, results) => {
       if (error) next(error);
+
       res.status(200).json({ message: "success" });
+    }
+  );
+};
+
+// Get all tierlists of the given account id
+// Returns an empty array if no tier lists in account
+const getTierlists = (req, res, next) => {
+  const accountId = req.params.accountId;
+  pool.query(
+    "SELECT * FROM tier_list WHERE account_id = $1",
+    [accountId],
+    (error, results) => {
+      if (error) next(error);
+      res.status(200).json({ tierlists: results.rows });
     }
   );
 };
 
 const readTierlist = (req, res, next) => {
   const tierlistId = req.body.tierlistId;
+  const isOwner = false;
 
   //TO DO JOINS
   pool.query(
@@ -50,7 +67,14 @@ const readTierlist = (req, res, next) => {
         res.status(404).json({ error: "Quiz does not exist" });
         return next();
       }
-      res.status(200).json(results[0]);
+
+      if (
+        req.isAuthenticated() &&
+        req.session.passport.id === results[0].account_id
+      ) {
+        isOwner = true;
+      }
+      res.status(200).json({ ...results[0], isOwner: isOwner });
     }
   );
 };
@@ -129,4 +153,5 @@ module.exports = {
   createTierList,
   updateTierlist,
   deleteTierlist,
+  getTierlists,
 };
