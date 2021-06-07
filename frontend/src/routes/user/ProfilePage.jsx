@@ -42,6 +42,7 @@ export function ProfilePage() {
   const [tierlists, setTierlists] = useState([]);
   const [isCreateVisible, setIsCreateVisibile] = useState(false);
 
+  // get the initial state of profile screen
   useEffect(async () => {
     const profileRes = await api.getProfileUsername(username);
     if (profileRes.statusCode === 200) {
@@ -77,7 +78,6 @@ export function ProfilePage() {
   const handleCancel = () => {
     setIsCreateVisibile(false);
   };
-
   return (
     <div className={styles.profileWrapper}>
       <Modal
@@ -149,7 +149,7 @@ export function ProfilePage() {
           renderItem={(item) => (
             <List.Item
               actions={[
-                <Link to="/login" key="edit">
+                <Link to={`/tierlist/edit/${item.tier_list_id}`} key="edit">
                   <EditOutlined style={{ fontSize: "1rem" }} /> Edit
                 </Link>,
               ]}

@@ -42,6 +42,11 @@ const createTierList = (req, res, next) => {
 // Returns an empty array if no tier lists in account
 const getTierlists = (req, res, next) => {
   const accountId = req.params.accountId;
+  if (accountId === undefined || accountId === null) {
+    res.status(404).json({ error: "accountId is undefined" });
+    return next();
+  }
+
   pool.query(
     "SELECT * FROM tier_list WHERE account_id = $1",
     [accountId],
@@ -53,28 +58,32 @@ const getTierlists = (req, res, next) => {
 };
 
 const readTierlist = (req, res, next) => {
-  const tierlistId = req.body.tierlistId;
-  const isOwner = false;
+  const tierlistId = req.params.id;
+  let isOwner = false;
 
+  if (tierlistId === undefined || tierlistId === null) {
+    res.status(404).json({ error: "accountId is undefined" });
+    return next();
+  }
+  console.log(tierlistId);
   //TO DO JOINS
   pool.query(
     "SELECT * FROM tier_list WHERE tier_list_id = $1",
     [tierlistId],
     (error, results) => {
       if (error) next(error);
-
-      if (res.results.length === 0) {
+      if (results.rows.length === 0) {
         res.status(404).json({ error: "Quiz does not exist" });
         return next();
       }
 
       if (
         req.isAuthenticated() &&
-        req.session.passport.id === results[0].account_id
+        req.session.passport.user.id === results.rows[0].account_id
       ) {
         isOwner = true;
       }
-      res.status(200).json({ ...results[0], isOwner: isOwner });
+      res.status(200).json({ tierlist: results.rows[0], isOwner: isOwner });
     }
   );
 };
@@ -94,7 +103,7 @@ const updateTierlist = (req, res, next) => {
   }
 
   const tierlistId = req.body.tierlistId;
-  const accountId = req.session.passport.id;
+  const accountId = req.session.passport.user.id;
 
   // Ensure that the current user is the correct user
   if (!isOwnerOfTierlist(accountId, tierlistId, next)) {

@@ -31,11 +31,10 @@ const PageHeader = () => {
   }, [username]);
 
   const dispatch = useDispatch();
-  console.log(isAuthenticated);
+
   // Set authenticiation value to determine if the user is logged in or not
   const setAuthentication = async () => {
     const res = await api.isAuthenticated();
-    console.log({ res });
     setIsAuthenticated(res.isAuthenticated);
   };
 

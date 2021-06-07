@@ -6,6 +6,7 @@ import LoginPage from "./routes/auth/LoginPage";
 import RegisterPage from "./routes/auth/RegisterPage";
 import SplashPage from "./routes/SplashPage";
 import ProfilePage from "./routes/user/ProfilePage";
+import EditTierlistPage from "./routes/user/EditTierlistPage";
 
 // Components
 import PageHeader from "./components/PageHeader/PageHeader";
@@ -35,6 +36,9 @@ function App() {
             </Route>
             <Route path="/profile/:username">
               <ProfilePage />
+            </Route>
+            <Route path="/tierlist/edit/:id">
+              <EditTierlistPage />
             </Route>
             <Route>
               <SplashPage />

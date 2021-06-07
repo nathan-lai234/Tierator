@@ -1,0 +1,66 @@
+$icon-size: 2rem;
+
+.tierForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.imageDropzone {
+  border: dashed 1.5px #d9d9d9;
+  background-color: #fafafa;
+  padding: 3rem 5rem;
+  width: 40rem;
+  height: 10rem;
+  margin-bottom: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadIcon {
+  font-size: $icon-size;
+  color: #1890ff;
+}
+
+.tierElementList {
+  border: solid 2px #8c8c8c;
+  background-color: #fafafa;
+
+  display: flex;
+  justify-content: flex-start;
+  min-height: 6rem;
+  width: 60rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+
+  flex-wrap: wrap;
+}
+
+.tierElement {
+  width: 6rem;
+  height: 6rem;
+}
+
+.deleteElement {
+  border: dashed 1.5px #d9d9d9;
+  background-color: #fafafa;
+  padding: 3rem 5rem;
+  width: 20rem;
+  height: 10rem;
+  margin-bottom: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.deleteIcon {
+  font-size: $icon-size;
+  color: #f5222d;
+}

@@ -70,14 +70,16 @@ export default class API {
     return getJSON(`${this.url}/user/account/details/${username}`, options);
   }
 
-  getProfileId(id) {
+  // Get profile details given a account id
+  getProfileId(accountId) {
     const options = {
       method: "GET",
       credentials: "include",
     };
-    return getJSON(`${this.url}/user/profile/${id}`, options);
+    return getJSON(`${this.url}/user/profile/${accountId}`, options);
   }
 
+  // Give profile details given a username
   getProfileUsername(username) {
     const options = {
       method: "GET",
@@ -86,6 +88,7 @@ export default class API {
     return getJSON(`${this.url}/user/profile/username/${username}`, options);
   }
 
+  // Get all tierlist of the given accountId
   getTierlists(accountId) {
     const options = {
       method: "GET",
@@ -94,6 +97,7 @@ export default class API {
     return getJSON(`${this.url}/tierlists/${accountId}`, options);
   }
 
+  // Create tierlist given payload
   createTierlist(payload) {
     const options = {
       method: "POST",
@@ -101,6 +105,33 @@ export default class API {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    };
+    return getJSON(`${this.url}/tierlist`, options);
+  }
+
+  /// Read/get one tierlist given the id
+  readTierlist(tierlistId) {
+    const options = {
+      method: "GET",
+      credentials: "include",
+    };
+    return getJSON(`${this.url}/tierlist/${tierlistId}`, options);
+  }
+
+  updateTierlist(payload) {
+    const options = {
+      method: "PUT",
+      credentials: "include",
+      body: JSON.stringify(payload),
+    };
+    return getJSON(`${this.url}/tierlist`, options);
+  }
+
+  deleteTierlist(payload) {
+    const options = {
+      method: "DELETE",
       credentials: "include",
       body: JSON.stringify(payload),
     };
