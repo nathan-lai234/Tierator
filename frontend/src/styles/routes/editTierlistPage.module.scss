@@ -43,6 +43,18 @@ $icon-size: 2rem;
 .tierElement {
   width: 6rem;
   height: 6rem;
+  cursor: pointer;
+  -khtml-user-select: none;
+  -o-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  background-size: 6rem 6rem;
+}
+
+.tierElement:focus {
+  opacity: 0.5;
 }
 
 .deleteElement {

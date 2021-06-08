@@ -1,25 +1,38 @@
 import React, { useEffect, useState } from "react";
 
+import API from "../../api/api";
 import styles from "../../styles/routes/editTierlistPage.module.scss";
-
 import { whitespaceRule } from "../../helpers/inputValidation";
 
-import { useParams } from "react-router";
-import API from "../../api/api";
 import {
   FormItemInput,
   FormItemTextArea,
   FormItemCheckbox,
 } from "../../components/FormItem/FormItem";
-
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import SortableEditElement from "../../components/EditTierlist/SortableEditElement";
 
 import { PageHeader, Button } from "antd";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 
-import Dropzone from "react-dropzone";
-// const { Text } = Typography;
-
+import { useParams } from "react-router";
 import { useForm } from "react-hook-form";
+import Dropzone from "react-dropzone";
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  PointerSensor,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+} from "@dnd-kit/sortable";
+import EditElement from "../../components/EditTierlist/EditElement";
 
 export function EditTierlistPage() {
   const {
@@ -34,7 +47,38 @@ export function EditTierlistPage() {
 
   const [isOwner, setIsOwner] = useState(false);
   const [tierlist, setTierlist] = useState({});
+  const [activeId, setActiveId] = useState(null);
+
+  const maxDescriptionLength = 500;
+  // Drag and drop hook
+  const sensors = useSensors(useSensor(MouseSensor));
+  const { isOver, setNodeRef } = useDroppable({
+    id: "elementsList",
+  });
+  const listStyle = {
+    backgroundColor: isOver && "green",
+  };
+  // List of file upload by the user, the order of the list determine the order of the elements in the tier list
   const [filelist, setFilelist] = useState([]);
+
+  // The current filelistId used to differentiate files for sortable drag and drop list
+  let filelistId = getNextId();
+
+  //  Get the next id for an tier element, each id has to be unique as each id identifies a tier element drag and drop property
+  // This may face issues (integer overflow) when a users adds a FUCKTON of elements.... but that wont happen right? Maybe put a fail safe if it does so
+  function getNextId() {
+    if (filelist.length <= 0) {
+      return 0;
+    }
+    let largest = 0;
+    for (const file of filelist) {
+      if (file.id > largest) {
+        largest = file.id;
+      }
+    }
+    largest++;
+    return largest;
+  }
 
   // Get tier list data and preset all values in their respective prompt
   // Determine if the user is also the owner of the tierlist
@@ -50,17 +94,72 @@ export function EditTierlistPage() {
   };
 
   // Covert given file into base64
-  function getBase64(file) {
+  const getBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
-  }
+  };
 
-  const maxDescriptionLength = 500;
-  console.log({ isOwner });
+  // When a element is moved to a different id, move the element
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active === null || over === null) return;
+    if (active.id !== over.id) {
+      setFilelist((filelist) => {
+        const oldIndex = indexOfFileId(active.id);
+        const newIndex = indexOfFileId(over.id);
+        return arrayMove(filelist, oldIndex, newIndex);
+      });
+    }
+    //Removes active focus
+
+    document.activeElement.blur();
+    setActiveId(null);
+  };
+
+  // Get the index of the file with the given id, used in handleDragEnd for element reordering
+  const indexOfFileId = (id) => {
+    for (let i = 0; i < filelist.length; i++) {
+      if (filelist[i].id === id) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+  const handleDragCancel = (event) => {
+    //Removes active focus
+
+    document.activeElement.blur();
+    setActiveId(null);
+  };
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  const getImage = (id) => {
+    for (const file of filelist) {
+      if (file.id === id) {
+        return file.rawImage;
+      }
+    }
+    return null;
+  };
+
+  // The on drop function when uploading new files.
+  // Add a rawImage and id property, for display and sorting respectively
+  const onDrop = async (acceptedFiles) => {
+    for (const file of acceptedFiles) {
+      file.rawImage = await getBase64(file);
+      file.id = filelistId.toString();
+      filelistId++;
+    }
+    setFilelist([...filelist, ...acceptedFiles]);
+  };
+
   return (
     <form
       name="editTierlist"
@@ -115,15 +214,7 @@ export function EditTierlistPage() {
         control={control}
       />
 
-      <Dropzone
-        onDrop={async (acceptedFiles) => {
-          console.log(acceptedFiles);
-          for (const file of acceptedFiles) {
-            file.rawImage = await getBase64(file);
-          }
-          setFilelist([...filelist, ...acceptedFiles]);
-        }}
-      >
+      <Dropzone onDrop={onDrop}>
         {({ getRootProps, getInputProps }) => (
           <section>
             <div {...getRootProps()} className={styles.imageDropzone}>
@@ -134,24 +225,40 @@ export function EditTierlistPage() {
           </section>
         )}
       </Dropzone>
-      <div className={styles.tierElementList}>
-        {filelist.map((file, index) => {
-          return (
-            <div key={index}>
-              <img
-                alt={file.name}
-                src={file.rawImage}
-                className={styles.tierElement}
-              ></img>
-            </div>
-          );
-        })}
-      </div>
 
-      <div className={styles.deleteElement}>
-        <DeleteOutlined className={styles.deleteIcon} />
-        <p>Drag and Drop items here to remove them from the tierlist</p>
-      </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragCancel={handleDragCancel}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={filelist}
+          strategy={rectSortingStrategy}
+          className={styles.tierElementList}
+        >
+          <div
+            ref={setNodeRef}
+            style={listStyle}
+            className={styles.tierElementList}
+          >
+            {filelist.map((file, index) => {
+              return (
+                <SortableEditElement key={index} element={file} index={index} />
+              );
+            })}
+          </div>
+        </SortableContext>
+        <DragOverlay adjustScale={true} zIndex={50}>
+          {activeId ? <EditElement rawImage={getImage(activeId)} /> : null}
+        </DragOverlay>
+
+        <div className={styles.deleteElement}>
+          <DeleteOutlined className={styles.deleteIcon} />
+          <p>Drag and Drop items here to remove them from the tierlist</p>
+        </div>
+      </DndContext>
       <Button type="primary" htmlType="submit">
         Submit
       </Button>
