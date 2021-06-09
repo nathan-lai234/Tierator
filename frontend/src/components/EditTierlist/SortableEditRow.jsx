@@ -3,13 +3,13 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { useSortable } from "@dnd-kit/sortable";
-import EditElement from "./EditElement";
+import EditRow from "./EditRow";
 
-const SortableEditElement = ({ element }) => {
-  SortableEditElement.propTypes = {
-    element: PropTypes.object,
+const SortableEditRow = (props) => {
+  SortableEditRow.propTypes = {
+    row: PropTypes.string,
+    onChange: PropTypes.func,
   };
-
   const {
     attributes,
     listeners,
@@ -17,22 +17,25 @@ const SortableEditElement = ({ element }) => {
     transform,
     transition,
   } = useSortable({
-    id: element.id,
+    id: props.row.id,
   });
   const style = transform && {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     transition,
     zIndex: "10",
+    backgroundColor: "green",
   };
+
   return (
-    <EditElement
+    <EditRow
       ref={setNodeRef}
-      rawImage={element.rawImage}
       style={style}
-      {...listeners}
-      {...attributes}
+      label={props.row.label}
+      listeners={listeners}
+      attributes={attributes}
+      onChange={props.onChange}
     />
   );
 };
 
-export default SortableEditElement;
+export default SortableEditRow;

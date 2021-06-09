@@ -11,11 +11,15 @@ import {
 } from "../../components/FormItem/FormItem";
 import SortableEditElement from "../../components/EditTierlist/SortableEditElement";
 
-import { PageHeader, Button } from "antd";
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import { PageHeader, Button, Input } from "antd";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 
 import { useParams } from "react-router";
-import { useForm } from "react-hook-form";
+import { get, useForm } from "react-hook-form";
 import Dropzone from "react-dropzone";
 import {
   closestCenter,
@@ -23,6 +27,7 @@ import {
   DragOverlay,
   MouseSensor,
   PointerSensor,
+  TouchSensor,
   useDroppable,
   useSensor,
   useSensors,
@@ -31,8 +36,10 @@ import {
   arrayMove,
   rectSortingStrategy,
   SortableContext,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import EditElement from "../../components/EditTierlist/EditElement";
+import SortableEditRow from "../../components/EditTierlist/SortableEditRow";
 
 export function EditTierlistPage() {
   const {
@@ -49,9 +56,15 @@ export function EditTierlistPage() {
   const [tierlist, setTierlist] = useState({});
   const [activeId, setActiveId] = useState(null);
 
+  const [rows, setRows] = useState([
+    { label: "", id: "0" },
+    { label: "", id: "1" },
+    { label: "", id: "2" },
+  ]);
+
   const maxDescriptionLength = 500;
   // Drag and drop hook
-  const sensors = useSensors(useSensor(MouseSensor));
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
   const { isOver, setNodeRef } = useDroppable({
     id: "elementsList",
   });
@@ -62,18 +75,19 @@ export function EditTierlistPage() {
   const [filelist, setFilelist] = useState([]);
 
   // The current filelistId used to differentiate files for sortable drag and drop list
-  let filelistId = getNextId();
+  let filelistId = getNextId(filelist);
+  let rowsId = getNextId(rows);
 
   //  Get the next id for an tier element, each id has to be unique as each id identifies a tier element drag and drop property
   // This may face issues (integer overflow) when a users adds a FUCKTON of elements.... but that wont happen right? Maybe put a fail safe if it does so
-  function getNextId() {
-    if (filelist.length <= 0) {
+  function getNextId(array) {
+    if (array.length <= 0) {
       return 0;
     }
     let largest = 0;
-    for (const file of filelist) {
-      if (file.id > largest) {
-        largest = file.id;
+    for (const thing of array) {
+      if (parseInt(thing.id) > largest) {
+        largest = thing.id;
       }
     }
     largest++;
@@ -103,14 +117,34 @@ export function EditTierlistPage() {
     });
   };
 
+  // Get the index of the file with the given id, used in handleDragEnd for element reordering
+  const indexOfFileId = (array, id) => {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i].id === id) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+  const handleDragElementStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  const handleDragElementCancel = (event) => {
+    //Removes active focus
+    document.activeElement.blur();
+    setActiveId(null);
+  };
+
   // When a element is moved to a different id, move the element
-  const handleDragEnd = (event) => {
+  const handleDragElementEnd = (event) => {
     const { active, over } = event;
     if (active === null || over === null) return;
     if (active.id !== over.id) {
       setFilelist((filelist) => {
-        const oldIndex = indexOfFileId(active.id);
-        const newIndex = indexOfFileId(over.id);
+        const oldIndex = indexOfFileId(filelist, active.id);
+        const newIndex = indexOfFileId(filelist, over.id);
         return arrayMove(filelist, oldIndex, newIndex);
       });
     }
@@ -120,24 +154,20 @@ export function EditTierlistPage() {
     setActiveId(null);
   };
 
-  // Get the index of the file with the given id, used in handleDragEnd for element reordering
-  const indexOfFileId = (id) => {
-    for (let i = 0; i < filelist.length; i++) {
-      if (filelist[i].id === id) {
-        return i;
-      }
+  const handleDragRowEnd = (event) => {
+    const { active, over } = event;
+    if (active === null || over === null) return;
+    if (active.id !== over.id) {
+      setRows((rows) => {
+        const oldIndex = indexOfFileId(rows, active.id);
+        const newIndex = indexOfFileId(rows, over.id);
+        return arrayMove(rows, oldIndex, newIndex);
+      });
     }
-    return -1;
-  };
-
-  const handleDragCancel = (event) => {
     //Removes active focus
 
     document.activeElement.blur();
-    setActiveId(null);
-  };
-  const handleDragStart = (event) => {
-    setActiveId(event.active.id);
+    // setActiveId(null);
   };
 
   const getImage = (id) => {
@@ -158,6 +188,23 @@ export function EditTierlistPage() {
       filelistId++;
     }
     setFilelist([...filelist, ...acceptedFiles]);
+  };
+
+  const setRowLabel = (event, id) => {
+    const value = event.target.value;
+    let newRows = [...rows];
+    for (const row of newRows) {
+      if (row.id === id) {
+        row.label = value;
+        break;
+      }
+    }
+    setRows(newRows);
+  };
+
+  const addNewRow = () => {
+    setRows([...rows, { label: "", id: rowsId.toString() }]);
+    rowsId++;
   };
 
   return (
@@ -214,6 +261,31 @@ export function EditTierlistPage() {
         control={control}
       />
 
+      {/* Rows */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragRowEnd}
+      >
+        <SortableContext items={rows} strategy={verticalListSortingStrategy}>
+          {rows.map((row, index) => {
+            return (
+              <SortableEditRow
+                key={index}
+                row={row}
+                onChange={(event) => {
+                  setRowLabel(event, row.id);
+                }}
+              />
+            );
+          })}
+        </SortableContext>
+      </DndContext>
+      <div className={styles.addRow} onClick={addNewRow}>
+        <PlusOutlined /> Add Row
+      </div>
+
+      {/* Upload Images */}
       <Dropzone onDrop={onDrop}>
         {({ getRootProps, getInputProps }) => (
           <section>
@@ -225,13 +297,12 @@ export function EditTierlistPage() {
           </section>
         )}
       </Dropzone>
-
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragCancel={handleDragCancel}
-        onDragEnd={handleDragEnd}
+        onDragStart={handleDragElementStart}
+        onDragCancel={handleDragElementCancel}
+        onDragEnd={handleDragElementEnd}
       >
         <SortableContext
           items={filelist}
@@ -244,9 +315,7 @@ export function EditTierlistPage() {
             className={styles.tierElementList}
           >
             {filelist.map((file, index) => {
-              return (
-                <SortableEditElement key={index} element={file} index={index} />
-              );
+              return <SortableEditElement key={index} element={file} />;
             })}
           </div>
         </SortableContext>

@@ -1,7 +1,8 @@
 .formItem {
   display: flex;
   flex-direction: column;
-  width: 30rem;
+  width: 80%;
+  max-width: 30rem;
 }
 
 .formLabel {
